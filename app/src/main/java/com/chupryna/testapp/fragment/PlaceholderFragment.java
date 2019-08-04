@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class PlaceholderFragment extends Fragment {
 
-    public static final String ARG_PAGE_NUMBER = "section_number";
+    public static final String ARG_PAGE_NUMBER = "page_number";
     private ImageButton mPlusBtn;
     private ImageButton mMinusBtn;
     private ImageButton mCreateNotificationBtn;

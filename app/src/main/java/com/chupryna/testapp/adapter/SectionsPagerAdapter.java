@@ -1,10 +1,13 @@
 package com.chupryna.testapp.adapter;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
+
+import com.chupryna.testapp.fragment.PlaceholderFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,15 @@ public class SectionsPagerAdapter extends FragmentStatePagerAdapter
     @Override
     public int getCount() {
         return listFragment.size();
+    }
+
+    public int getPositionByPage(int page) {
+        for (int i = 0; i < listFragment.size(); i++) {
+            Bundle args = listFragment.get(i).getArguments();
+            if (args != null && args.getInt(PlaceholderFragment.ARG_PAGE_NUMBER) == page)
+                return i;
+        }
+        return -1;
     }
 
     public void addFragment(Fragment fragment) {

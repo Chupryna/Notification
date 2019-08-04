@@ -32,9 +32,17 @@ public class MainActivity extends AppCompatActivity {
         initManager();
 
         addFragment(0);
-        int page = getIntent().getIntExtra(PlaceholderFragment.ARG_PAGE_NUMBER, -1);
+        int page = getPageFromIntent();
         if (page != -1)
             addFragment(page);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int page = getPageFromIntent();
+        if (page != -1)
+            mViewPager.setCurrentItem(mSectionsPagerAdapter.getPositionByPage(page));
     }
 
     private void initView() {
@@ -56,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
             channel.enableVibration(false);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    private int getPageFromIntent() {
+        return getIntent().getIntExtra(PlaceholderFragment.ARG_PAGE_NUMBER, -1);
     }
 
     public void addFragment() {
