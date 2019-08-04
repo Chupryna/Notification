@@ -17,6 +17,7 @@
         app:layout_constraintVertical_bias="0.335">
 
         <ImageButton
+            android:id="@+id/create_notification_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
@@ -61,16 +62,19 @@
             android:layout_gravity="center"
             android:clickable="false"
             android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"
+            android:textColor="@color/blue"
+            android:textSize="28sp"
+            android:textStyle="bold"
             tools:text="1" />
 
         <FrameLayout
             android:id="@+id/container_minus"
             android:layout_width="64dp"
-            android:layout_height="56dp">
+            android:layout_height="56dp"
+            android:visibility="gone">
 
             <ImageButton
+                android:id="@+id/minus_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@null"
@@ -81,7 +85,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:background="@null"
-                android:src="@drawable/minus"/>
+                android:src="@drawable/minus"
+                android:clickable="false"/>
         </FrameLayout>
 
         <FrameLayout
@@ -91,6 +96,7 @@
             android:layout_gravity="end">
 
             <ImageButton
+                android:id="@+id/plus_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@null"
@@ -101,7 +107,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:background="@null"
-                android:src="@drawable/plus"/>
+                android:src="@drawable/plus"
+                android:clickable="false"/>
         </FrameLayout>
 
     </FrameLayout>

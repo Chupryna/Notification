@@ -1,24 +1,26 @@
 package com.chupryna.testapp;
 
-import android.support.annotation.NonNull;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.chupryna.testapp.adapter.SectionsPagerAdapter;
+import com.chupryna.testapp.fragment.PlaceholderFragment;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String CHANNEL_ID = "Custom channel";
     private ViewPager mViewPager;
     private SectionsPagerAdapter mSectionsPagerAdapter;
+    private NotificationManager notificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +29,12 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
         initAdapters();
+        initManager();
+
+        addFragment(0);
+        int page = getIntent().getIntExtra(PlaceholderFragment.ARG_PAGE_NUMBER, -1);
+        if (page != -1)
+            addFragment(page);
     }
 
     private void initView() {
@@ -35,68 +43,62 @@ public class MainActivity extends AppCompatActivity {
 
     private void initAdapters() {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-
-        mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(0));
-        mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(1));
         mViewPager.setAdapter(mSectionsPagerAdapter);
     }
 
+    private void initManager() {
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-
-
-    public static class PlaceholderFragment extends Fragment {
-
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            Bundle args = getArguments();
-            int position = args != null ? args.getInt(ARG_SECTION_NUMBER) : -1;
-
-            View rootView = inflater.inflate(R.layout.fragment, container, false);
-            TextView numberOfPageTV = rootView.findViewById(R.id.number_of_page_tv);
-            numberOfPageTV.setText(String.valueOf(position));
-
-            return rootView;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "My channel",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("My custom channel for notification");
+            channel.enableVibration(false);
+            notificationManager.createNotificationChannel(channel);
         }
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter
-    {
-        private List<Fragment> listFragment;
+    public void addFragment() {
+        Fragment fragment = mSectionsPagerAdapter.getItem(mSectionsPagerAdapter.getCount()-1);
+        assert fragment.getArguments() != null;
+        int position = fragment.getArguments().getInt(PlaceholderFragment.ARG_PAGE_NUMBER)+1;
 
-        SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-            listFragment = new ArrayList<>();
-        }
+        mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(position));
+        mSectionsPagerAdapter.notifyDataSetChanged();
+        mViewPager.setCurrentItem(position);
+    }
 
-        @Override
-        public Fragment getItem(int position) {
-            return listFragment.get(position);
-        }
+    public void addFragment(int position) {
+        mSectionsPagerAdapter.addFragment(PlaceholderFragment.newInstance(position));
+        mSectionsPagerAdapter.notifyDataSetChanged();
+        mViewPager.setCurrentItem(position);
+    }
 
-        @Override
-        public int getCount() {
-            return listFragment.size();
-        }
+    public void removeFragment(int page) {
+        int position = mViewPager.getCurrentItem();
+        mViewPager.setCurrentItem(position-1);
+        mSectionsPagerAdapter.removeFragment(position);
+        mSectionsPagerAdapter.notifyDataSetChanged();
 
-        void addFragment(Fragment fragment) {
-            listFragment.add(fragment);
-        }
+        notificationManager.cancel(page);
+    }
+
+    public void showNotification(int page) {
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.putExtra(PlaceholderFragment.ARG_PAGE_NUMBER, page);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, CHANNEL_ID)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setColor(Color.BLUE)
+                        .setContentTitle("Chat heads active")
+                        .setContentText("Notification " + (page+1))
+                        .setContentIntent(resultPendingIntent)
+                        .setAutoCancel(true);
+
+        Notification notification = builder.build();
+        notificationManager.notify(page, notification);
     }
 }
